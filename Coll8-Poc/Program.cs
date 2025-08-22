@@ -5,12 +5,11 @@ internal class Program
     private static void Main(string[] args)
     {
         var fileText = File.ReadAllText("Template/Coll8_Template.txt");
-
-        var header = fileText.Split(Environment.NewLine)[0];
-        var content = fileText.Split(Environment.NewLine)[1];
+        var templateHeader = fileText.Split(Environment.NewLine)[0];
+        var templateContent = fileText.Split(Environment.NewLine)[1];
 
         var dtos = BuildFakePackageScansDto();
-        var txtContent = MapToTxt(header, content, dtos);
+        var txtContent = MapToTxt(templateHeader, templateContent, dtos);
         var fileName = $"SH-DEVTEST01_{DateTime.UtcNow:yyyyMMddHHmmss}.TXT";
 
         File.WriteAllText(fileName, txtContent);
@@ -35,7 +34,7 @@ internal class Program
             newLine = newLine.Replace("{ExporterShipperAccountCode}", "");
             newLine = newLine.Replace("{ShipmentTrackingNumber}", dto.ContainerId);
             newLine = newLine.Replace("{ShippingDate}", DateTime.UtcNow.ToString("yyyy-MM-dd"));
-            newLine = newLine.Replace("{DeliveryAgent}", dto.CountryCode == "GB" ? "Royal Mail" : ""); // What else if not GB?
+            newLine = newLine.Replace("{DeliveryAgent}", dto.CountryCode == "GB" ? "USPS" : ""); 
 
             // Exporter/Consignor Name
             newLine = newLine.Replace("{ExporterEORINumber}", "IE4802830A"); // Non-Prod (IE4802830A), Prod (IE4736920J)
@@ -90,7 +89,7 @@ internal class Program
 
             // If either column are populated in the T+T View, they should be added like a list to this field on the manifest.
             //Example: [{Code=dds&Value=233455};{Code=Y022&Value=NAI}]
-            newLine = newLine.Replace("{AdditionalCode}", "[{Code=dds&Value=" + dto.Eudr!.DdsNumber + "};{Code=Y022&Value=" + dto.Eudr!.ExemptionCode + "}]");
+            newLine = newLine.Replace("{AdditionalCode}", "[{Code=dds&Value=" + dto.Eudr!.DdsNumber + "};{Code=" + dto.Eudr!.ExemptionCode + "&Value=NAI}]");
             //
 
             newLine = newLine.Replace("{CPC}", "");
