@@ -9,7 +9,6 @@ public class PackageScans
     public int GOODS_ITEM_NUMBER { get; set; }
     public string PRODUCT_CODE { get; set; } = null!;
     public string? COUNTRY_CODE { get; set; }
-    public string? VAT_RATE_CODE { get; set; }
     public string COUNTRY_OF_ORIGIN_CODE { get; set; } = null!;
     public string COMMODITY_CODE { get; set; } = null!;
     public string ITEM { get; set; } = null!;
@@ -45,7 +44,6 @@ public class PackageScans
     public string DESCRIPTION_OF_GOODS { get; set; } = null!;
     public int NUMBER_OF_PACKAGES { get; set; }
     public decimal? NET_MASS { get; set; }
-    public string? BUSINESS_PROCESSING_PRIORITY { get; set; }
     public DateTime ESCAN_DATETIME { get; set; }
     public DateTime TIMESTAMP { get; set; }
     public string? SKU { get; set; }
