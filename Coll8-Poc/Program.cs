@@ -2,6 +2,9 @@
 
 internal class Program
 {
+    const string AccountCode = "SH-DEVTEST01"; // Non-Prod (SH-DEVTEST01), Prod (ANP0002)
+    const string ExporterEoriNumber = "IE4802830A"; // Non-Prod (IE4802830A), Prod (IE4736920J)
+
     private static void Main(string[] args)
     {
         var fileText = File.ReadAllText("Template/Coll8_Template.txt");
@@ -10,7 +13,7 @@ internal class Program
 
         var dtos = BuildFakePackageScansDto();
         var txtContent = MapToTxt(templateHeader, templateContent, dtos);
-        var fileName = $"SH-DEVTEST01_{DateTime.UtcNow:yyyyMMddHHmmss}.TXT";
+        var fileName = $"{AccountCode}_{DateTime.UtcNow:yyyyMMddHHmmss}.TXT";
 
         File.WriteAllText(fileName, txtContent);
     }
@@ -26,7 +29,7 @@ internal class Program
 
             var trackingNumber = $"{dto.ProductCode}{dto.Item.Number.ToString().PadLeft(9, '0')}{dto.CountryCode}";
             var itemPrice = dto.DeclaredValue.Amount / dto.NumberOfPackages;
-            var additionalCode = string.Concat("[{Code=dds&Value=", dto.Eudr!.DdsNumber, "};{Code=", dto.Eudr!.ExemptionCode + "&Value=NAI}]");
+            var additionalCode = $"[{{Code=dds&Value={dto.Eudr!.DdsNumber}}};{{Code={dto.Eudr.ExemptionCode}&Value=NAI}}]";
             var utcNow = DateTime.UtcNow.ToString("yyyy-MM-dd");
 
             var totalTotalInvoiceAmount = dtos
@@ -38,14 +41,14 @@ internal class Program
             else if (dto.CountryCode == "US") deliveryAgent = "USPS";
 
             // Shipment Details
-            newLine = newLine.Replace("{AccountCode}", "SH-DEVTEST01"); // Non-Prod (SH-DEVTEST01), Prod (ANP0002)
+            newLine = newLine.Replace("{AccountCode}", AccountCode);
             newLine = newLine.Replace("{ExporterShipperAccountCode}", "");
             newLine = newLine.Replace("{ShipmentTrackingNumber}", dto.ContainerId);
             newLine = newLine.Replace("{ShippingDate}", utcNow);
-            newLine = newLine.Replace("{DeliveryAgent}", deliveryAgent); 
+            newLine = newLine.Replace("{DeliveryAgent}", deliveryAgent);
 
             // Exporter/Consignor Name
-            newLine = newLine.Replace("{ExporterEORINumber}", "IE4802830A"); // Non-Prod (IE4802830A), Prod (IE4736920J)
+            newLine = newLine.Replace("{ExporterEORINumber}", ExporterEoriNumber);
             newLine = newLine.Replace("{ExporterCompanyName}", dto.Exporter!.Name);
             newLine = newLine.Replace("{ExporterAddressLine1}", dto.Exporter.Address1);
             newLine = newLine.Replace("{ExporterAddressLine2}", dto.Exporter.Address2);
@@ -98,7 +101,7 @@ internal class Program
             newLine = newLine.Replace("{CPC}", "");
 
             // Invoice
-            newLine = newLine.Replace("{InvoiceNumber}", dto.DeclaredValue.Amount.ToString()); // ?? SUM(DeclaredValue) for the Tracking Number
+            newLine = newLine.Replace("{InvoiceNumber}", ""); // TBD
             newLine = newLine.Replace("{InvoiceCurrencyCode}", "EUR"); // Always EUR
             newLine = newLine.Replace("{ShippingCosts}", "");
             newLine = newLine.Replace("{ShippingInsuranceCost}", "");
@@ -155,7 +158,46 @@ internal class Program
                 Eudr = new EudrInfo()
                 {
                     DdsNumber = "233455",
-                    ExemptionCode = "NAI"
+                    ExemptionCode = "Y022"
+                },
+                DescriptionOfGoods = "Sample goods",
+            },
+            new()
+            {
+                ContainerId = "XX-092963080",
+                CountryCode = "GB",
+                Exporter = new ExporterInfo()
+                {
+                    Name = "Exporter Name",
+                    Address1 = "Exporter Address 1",
+                    Address2 = "Exporter Address 2",
+                    Address3 = "Exporter Address 3",
+                    City = "Dublin",
+                    Postcode = "D01F5P2",
+                    Country = "IE"
+                },
+                Importer = new ImporterInfo()
+                {
+                    Name = "Importer Name",
+                    Address1 = "Importer Address 1",
+                    Address2 = "Importer Address 2",
+                    Address3 = "Importer Address 3",
+                    City = "London",
+                    Country = "GB"
+                },
+                ProductCode = "XX",
+                Item = new ItemInfo() { Name = "", Number = 1 },
+                DeclaredValue = new DeclaredValueInfo() { Currency = "EUR", Amount = 4 },
+                NumberOfPackages = 1,
+                CommodityCode = "9505108001",
+                CountryOfOriginCode = "GB",
+                TypeOfGoods = new TypeOfGoodsInfo() { Description = "Stationery" },
+                Sku = "SKU123456789",
+                NetMass = 2.5m,
+                Eudr = new EudrInfo()
+                {
+                    DdsNumber = "233455",
+                    ExemptionCode = "Y022"
                 },
                 DescriptionOfGoods = "Sample goods",
             },
@@ -186,7 +228,7 @@ internal class Program
                 Item = new ItemInfo() { Name = "", Number = 2 },
                 DeclaredValue = new DeclaredValueInfo() { Currency = "EUR", Amount = 5 },
                 NumberOfPackages = 1,
-                CommodityCode = "9505108001",
+                CommodityCode = "9505108002",
                 CountryOfOriginCode = "GB",
                 TypeOfGoods = new TypeOfGoodsInfo() { Description = "Christmas Decorations" },
                 Sku = "SKU123456700",
@@ -194,7 +236,7 @@ internal class Program
                 Eudr = new EudrInfo()
                 {
                     DdsNumber = "233455",
-                    ExemptionCode = "NAI"
+                    ExemptionCode = "Y022"
                 },
                 DescriptionOfGoods = "Sample goods",
             },
