@@ -24,22 +24,30 @@ internal class Program
         {
             var newLine = lineTemplate;
 
+            var trackingNumber = $"{dto.ProductCode}{dto.Item.Number.ToString().PadLeft(9, '0')}{dto.CountryCode}";
+            var itemPrice = dto.DeclaredValue.Amount / dto.NumberOfPackages;
+            var additionalCode = string.Concat("[{Code=dds&Value=", dto.Eudr!.DdsNumber, "};{Code=", dto.Eudr!.ExemptionCode + "&Value=NAI}]");
+            var utcNow = DateTime.UtcNow.ToString("yyyy-MM-dd");
+
+            var totalTotalInvoiceAmount = dtos
+                .Where(x => x.ProductCode == dto.ProductCode && x.Item.Number == dto.Item.Number && x.CountryCode == dto.CountryCode)
+                .Sum(x => x.DeclaredValue.Amount);
+
+            var deliveryAgent = string.Empty;
+            if (dto.CountryCode == "GB") deliveryAgent = "Royal Mail";
+            else if (dto.CountryCode == "US") deliveryAgent = "USPS";
+
             // Shipment Details
-
-            // Always hardcoded to either of 2 values depending on the environment the application is running in.
-            // This is the An Post Vat number: (Non prod ‘IE4802830A’) (Production ‘IE4736920J’)
-            newLine = newLine.Replace("{AccountCode}", "SH-DEVTEST01");
-            //
-
+            newLine = newLine.Replace("{AccountCode}", "SH-DEVTEST01"); // Non-Prod (SH-DEVTEST01), Prod (ANP0002)
             newLine = newLine.Replace("{ExporterShipperAccountCode}", "");
             newLine = newLine.Replace("{ShipmentTrackingNumber}", dto.ContainerId);
-            newLine = newLine.Replace("{ShippingDate}", DateTime.UtcNow.ToString("yyyy-MM-dd"));
-            newLine = newLine.Replace("{DeliveryAgent}", dto.CountryCode == "GB" ? "USPS" : ""); 
+            newLine = newLine.Replace("{ShippingDate}", utcNow);
+            newLine = newLine.Replace("{DeliveryAgent}", deliveryAgent); 
 
             // Exporter/Consignor Name
             newLine = newLine.Replace("{ExporterEORINumber}", "IE4802830A"); // Non-Prod (IE4802830A), Prod (IE4736920J)
             newLine = newLine.Replace("{ExporterCompanyName}", dto.Exporter!.Name);
-            newLine = newLine.Replace("{ExporterAddressLine1}", dto.Exporter.Address1); // ?? If EORI not available then full address with postcode
+            newLine = newLine.Replace("{ExporterAddressLine1}", dto.Exporter.Address1);
             newLine = newLine.Replace("{ExporterAddressLine2}", dto.Exporter.Address2);
             newLine = newLine.Replace("{ExporterAddressLine3}", dto.Exporter.Address3);
             newLine = newLine.Replace("{ExporterCity}", dto.Exporter.City);
@@ -65,17 +73,17 @@ internal class Program
             newLine = newLine.Replace("{ImporterEmail}", "");
 
             // Import Package
-            newLine = newLine.Replace("{PackageTrackingNumber}", $"{dto.ProductCode}{dto.Item.Number.ToString().PadLeft(9, '0')}{dto.CountryCode}");
+            newLine = newLine.Replace("{PackageTrackingNumber}", trackingNumber);
             newLine = newLine.Replace("{PalletTrackingNumber}", "");
             newLine = newLine.Replace("{UOMWeight}", "");
             newLine = newLine.Replace("{GrossMassWeight}", "");
             newLine = newLine.Replace("{NetMassWeight}", "");
 
             // Import Package Items
-            newLine = newLine.Replace("{ItemPrice}", (dto.DeclaredValue.Amount / dto.NumberOfPackages).ToString());
+            newLine = newLine.Replace("{ItemPrice}", itemPrice.ToString());
             newLine = newLine.Replace("{ItemQtyUOM}", "KG"); // Always KG
             newLine = newLine.Replace("{ItemQuantity}", dto.NumberOfPackages.ToString());
-            newLine = newLine.Replace("{ItemInvoiceAmount}", dto.DeclaredValue.Amount.ToString()); // ?? (ItemPrice * Quantity) for the commodity line.
+            newLine = newLine.Replace("{ItemInvoiceAmount}", dto.DeclaredValue.Amount.ToString());
             newLine = newLine.Replace("{CommodityCode}", dto.CommodityCode);
             newLine = newLine.Replace("{ItemCountryOfOrigin}", dto.CountryOfOriginCode);
             newLine = newLine.Replace("{ItemGoodsDescription}", dto.TypeOfGoods!.Description);
@@ -86,12 +94,7 @@ internal class Program
             newLine = newLine.Replace("{ItemGrossWeight}", dto.NetMass.ToString());
             newLine = newLine.Replace("{ItemNetWeight}", dto.NetMass.ToString());
             newLine = newLine.Replace("{MeursingCode}", "");
-
-            // If either column are populated in the T+T View, they should be added like a list to this field on the manifest.
-            //Example: [{Code=dds&Value=233455};{Code=Y022&Value=NAI}]
-            newLine = newLine.Replace("{AdditionalCode}", "[{Code=dds&Value=" + dto.Eudr!.DdsNumber + "};{Code=" + dto.Eudr!.ExemptionCode + "&Value=NAI}]");
-            //
-
+            newLine = newLine.Replace("{AdditionalCode}", additionalCode);
             newLine = newLine.Replace("{CPC}", "");
 
             // Invoice
@@ -100,8 +103,8 @@ internal class Program
             newLine = newLine.Replace("{ShippingCosts}", "");
             newLine = newLine.Replace("{ShippingInsuranceCost}", "");
             newLine = newLine.Replace("{OtherCharges}", "");
-            newLine = newLine.Replace("{TotalInvoiceAmount}", dto.DeclaredValue.Amount.ToString()); // ?? SUM(DeclaredValue) for the Tracking Number
-            newLine = newLine.Replace("{InvoiceDate}", DateTime.UtcNow.ToString("yyyy-MM-dd"));
+            newLine = newLine.Replace("{TotalInvoiceAmount}", totalTotalInvoiceAmount.GetValueOrDefault().ToString());
+            newLine = newLine.Replace("{InvoiceDate}", utcNow);
             newLine = newLine.Replace("{IOSS}", "");
             newLine = newLine.Replace("{TANAccountNumber}", "");
             newLine = newLine.Replace("{ReasonForExport}", "");
