@@ -5,6 +5,7 @@ public class PackageScans
     public int VERSION_NO { get; set; }
     public string? LOAD_ID { get; set; }
     public string CONTAINER_ID { get; set; } = null!;
+    public string CONTAINER_TRIP_LABEL { get; set; } = null!;
     public string? CARRIER_EORI_NUMBER { get; set; }
     public int GOODS_ITEM_NUMBER { get; set; }
     public string PRODUCT_CODE { get; set; } = null!;

@@ -43,7 +43,7 @@ internal class Program
             // Shipment Details
             newLine = newLine.Replace("{AccountCode}", AccountCode);
             newLine = newLine.Replace("{ExporterShipperAccountCode}", "");
-            newLine = newLine.Replace("{ShipmentTrackingNumber}", dto.ContainerId);
+            newLine = newLine.Replace("{ShipmentTrackingNumber}", dto.ContainerTripLabel);
             newLine = newLine.Replace("{ShippingDate}", utcNow);
             newLine = newLine.Replace("{DeliveryAgent}", deliveryAgent);
 
@@ -101,7 +101,7 @@ internal class Program
             newLine = newLine.Replace("{CPC}", "");
 
             // Invoice
-            newLine = newLine.Replace("{InvoiceNumber}", ""); // TBD
+            newLine = newLine.Replace("{InvoiceNumber}", dto.Customer!.Ref);
             newLine = newLine.Replace("{InvoiceCurrencyCode}", "EUR"); // Always EUR
             newLine = newLine.Replace("{ShippingCosts}", "");
             newLine = newLine.Replace("{ShippingInsuranceCost}", "");
@@ -126,6 +126,7 @@ internal class Program
             new()
             {
                 ContainerId = "XX-092963080",
+                ContainerTripLabel = "DUB5013702ICL8",
                 CountryCode = "GB",
                 Exporter = new ExporterInfo()
                 {
@@ -160,11 +161,16 @@ internal class Program
                     DdsNumber = "233455",
                     ExemptionCode = "Y022"
                 },
+                Customer = new CustomerInfo()
+                {
+                    Ref = "UB010788667IE"
+                },
                 DescriptionOfGoods = "Sample goods",
             },
             new()
             {
                 ContainerId = "XX-092963080",
+                ContainerTripLabel = "DUB5013702ICL8",
                 CountryCode = "GB",
                 Exporter = new ExporterInfo()
                 {
@@ -199,11 +205,16 @@ internal class Program
                     DdsNumber = "233455",
                     ExemptionCode = "Y022"
                 },
+                Customer = new CustomerInfo()
+                {
+                    Ref = "UB010788667IE"
+                },
                 DescriptionOfGoods = "Sample goods",
             },
             new()
             {
                 ContainerId = "XX-092963099",
+                ContainerTripLabel = "DUB5013800ICL8",
                 CountryCode = "GB",
                 Exporter = new ExporterInfo()
                 {
@@ -237,6 +248,10 @@ internal class Program
                 {
                     DdsNumber = "233455",
                     ExemptionCode = "Y022"
+                },
+                Customer = new CustomerInfo()
+                {
+                    Ref = "UB010788684IE"
                 },
                 DescriptionOfGoods = "Sample goods",
             },

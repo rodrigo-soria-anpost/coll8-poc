@@ -4,6 +4,7 @@
     public int VersionNo { get; set; }                              // [VERSION_NO] int NOT NULL
     public string? LoadId { get; set; }                             // [LOAD_ID] nvarchar(20) NULL
     public required string ContainerId { get; set; }                // [CONTAINER_ID] nvarchar(10) NOT NULL
+    public required string ContainerTripLabel { get; set; }         // [CONTAINER_TRIP_LABEL] nvarchar(10) NOT NULL
     public string? CarrierEoriNumber { get; set; }                  // [CARRIER_EORI_NUMBER] nvarchar(20) NULL
     public int GoodsItemNumber { get; set; }                        // [GOODS_ITEM_NUMBER] int NOT NULL
     public required string ProductCode { get; set; }                // [PRODUCT_CODE] nvarchar(2) NOT NULL
